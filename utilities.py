@@ -70,17 +70,20 @@ def create_data_model(distance_matrix):
     data['depot'] = 0
     return data
 
-def print_solution(manager, routing, solution):
-    """Prints solution on console."""
-    print('Objective: {} miles'.format(solution.ObjectiveValue()))
+def get_solution(manager, routing, solution):
     index = routing.Start(0)
-    plan_output = 'Route for vehicle 0:\n'
     route_distance = 0
+    route_nodes = []
     while not routing.IsEnd(index):
-        plan_output += ' {} ->'.format(manager.IndexToNode(index))
+        route_nodes.append(manager.IndexToNode(index)) 
         previous_index = index
         index = solution.Value(routing.NextVar(index))
         route_distance += routing.GetArcCostForVehicle(previous_index, index, 0)
-    plan_output += ' {}\n'.format(manager.IndexToNode(index))
-    print(plan_output)
-    plan_output += 'Route distance: {}miles\n'.format(route_distance)
+    route_nodes.append(manager.IndexToNode(index))
+    solution = {
+        "objective": solution.ObjectiveValue(),
+        "route_distance": route_distance,
+        "route_nodes": route_nodes
+    } 
+    return solution
+    
